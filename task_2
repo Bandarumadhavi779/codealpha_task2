@@ -1,0 +1,101 @@
+class Stock:
+    def __init__(self, symbol, shares, purchase_price):
+        self.symbol = symbol
+        self.shares = shares
+        self.purchase_price = purchase_price
+
+    def current_value(self, current_price):
+        return self.shares * current_price
+
+    def total_investment(self):
+        return self.shares * self.purchase_price
+
+class Portfolio:
+    def __init__(self):
+        self.stocks = {}
+
+    def add_stock(self, symbol, shares, purchase_price):
+        if symbol in self.stocks:
+            self.stocks[symbol].shares += shares
+        else:
+            self.stocks[symbol] = Stock(symbol, shares, purchase_price)
+        print(f"Added {shares} shares of {symbol} at ${purchase_price:.2f} each.")
+
+    def remove_stock(self, symbol, shares):
+        if symbol in self.stocks:
+            if self.stocks[symbol].shares >= shares:
+                self.stocks[symbol].shares -= shares
+                if self.stocks[symbol].shares == 0:
+                    del self.stocks[symbol]
+                print(f"Removed {shares} shares of {symbol}.")
+            else:
+                print(f"Not enough shares to remove. You have {self.stocks[symbol].shares} shares of {symbol}.")
+        else:
+            print(f"Stock {symbol} not found in portfolio.")
+
+    def total_value(self, current_prices):
+        total = 0
+        for symbol, stock in self.stocks.items():
+            if symbol in current_prices:
+                total += stock.current_value(current_prices[symbol])
+        return total
+
+    def total_investment(self):
+        total = 0
+        for stock in self.stocks.values():
+            total += stock.total_investment()
+        return total
+
+    def display_portfolio(self):
+        if not self.stocks:
+            print("Your portfolio is empty.")
+            return
+        print("Your Portfolio:")
+        for stock in self.stocks.values():
+            print(f"{stock.symbol}: {stock.shares} shares at ${stock.purchase_price:.2f} each")
+
+def main():
+    portfolio = Portfolio()
+    
+    while True:
+        print("\nOptions:")
+        print("1. Add Stock")
+        print("2. Remove Stock")
+        print("3. View Portfolio")
+        print("4. Exit")
+        
+        choice = input("Choose an option (1-4): ")
+        
+        if choice == '1':
+            symbol = input("Enter stock symbol: ")
+            shares = int(input("Enter number of shares: "))
+            purchase_price = float(input("Enter purchase price per share: "))
+            portfolio.add_stock(symbol, shares, purchase_price)
+        
+        elif choice == '2':
+            symbol = input("Enter stock symbol to remove: ")
+            shares = int(input("Enter number of shares to remove: "))
+            portfolio.remove_stock(symbol, shares)
+        
+        elif choice == '3':
+            portfolio.display_portfolio()
+            current_prices = {}
+            if portfolio.stocks:
+                for stock in portfolio.stocks.keys():
+                    price = float(input(f"Enter current price for {stock}: "))
+                    current_prices[stock] = price
+                total_value = portfolio.total_value(current_prices)
+                total_investment = portfolio.total_investment()
+                print(f"\nTotal Investment: ${total_investment:.2f}")
+                print(f"Total Current Value: ${total_value:.2f}")
+                print(f"Profit/Loss: ${total_value - total_investment:.2f}")
+        
+        elif choice == '4':
+            print("Exiting the portfolio tracker.")
+            break
+        
+        else:
+            print("Invalid option. Please choose again.")
+
+if __name__ == "__main__":
+    main()
